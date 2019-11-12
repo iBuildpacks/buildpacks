@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+if [[ ! -f package.json ]]; then
+  exit 100
+fi
+
+plan_path=$2
+
+# Default NodeJs version
+version=12.13.0
+
+if [[ -f .node-version ]]; then
+  version=$(cat .node-version | tr -d '[:space:]')
+fi
+
+cat >> "${plan_path}" <<EOL
+[[provides]]
+name = "NodeJs"
+
+[[requires]]
+name = "NodeJs"
+version = "${version}"
+EOL

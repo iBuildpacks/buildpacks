@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+layers_dir=$1
+
+NODE_VERSION=v12.13.0
+
+echo "---> NodeJs buildpack"
+
+wget https://tc.tosone.cn/node-${NODE_VERSION}-linux-x64.tar.xz
+
+echo "---> Extracting NodeJs Runtime"
+
+tar xf node-${NODE_VERSION}-linux-x64.tar.xz
+
+node_layer_dir="${layers_dir}/node"
+mkdir -p "${node_layer_dir}"
+
+cp -r node-${NODE_VERSION}-linux-x64/* ${node_layer_dir}
+export PATH=$PATH:${node_layer_dir}/bin
+
+rm -rf node-${NODE_VERSION}-linux-x64.tar.xz node-${NODE_VERSION}-linux-x64
+
+cat > "${node_layer_dir}.toml" <<EOL
+launch = true
+metadata = "${NODE_VERSION}"
+EOL
+
+echo "---> Installing dependencies"
+
+tree -L 2
+
+npm config set registry https://registry.npm.taobao.org
+
+if [[ -f package-lock.json ]]; then
+  npm install --production
+  node_modules_checksum=$(sha256sum package-lock.json | cut -d ' ' -f 1)
+  cat >> "${layers_dir}/launch.toml" <<EOL
+[[processes]]
+type = "web"
+command = "npm start"
+EOL
+elif [[ -f yarn.lock ]]; then
+  npm install -g yarn
+  yarn config set registry https://registry.npm.taobao.org
+  yarn install --production
+  node_modules_checksum=$(sha256sum package-lock.json | cut -d ' ' -f 1)
+  cat >> "${layers_dir}/launch.toml" <<EOL
+[[processes]]
+type = "web"
+command = "yarn start"
+EOL
+fi
+
+cat > "node_modules.toml" <<EOL
+cache = true
+launch = true
+metadata = "${node_modules_checksum}"
+EOL

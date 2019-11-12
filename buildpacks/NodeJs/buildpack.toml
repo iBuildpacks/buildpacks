@@ -1,0 +1,9 @@
+api = "0.2"
+
+[buildpack]
+id = "io.caicloud.nodejs"
+version = "0.0.1"
+name = "NodeJs buildpack support npm and yarn denpendent managerment"
+
+[[stacks]]
+id = "io.caicloud.stacks.bionic"
