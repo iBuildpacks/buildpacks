@@ -4,6 +4,28 @@ set -eo pipefail
 
 layers_dir=$1
 
+# Detect Linux Distro
+distrofullname=$(grep PRETTY_NAME /etc/os-release | sed 's/PRETTY_NAME=//g' | tr -d '="' | cut -d " " -f 1)
+
+distroname=Ubuntu
+
+case ${distrofullname} in
+  CentOS) 
+    distroname=CentOS
+    ;;
+  Ubuntu)
+    distroname=Ubuntu
+    ;;
+  openSUSE)
+    distroname=openSUSE
+    ;;
+  Debian)
+    distroname=Debian
+    ;;
+esac
+
+echo ${distroname}
+
 NODE_VERSION=v12.13.0
 
 echo "---> NodeJs buildpack"

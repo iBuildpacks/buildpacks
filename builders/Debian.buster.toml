@@ -12,6 +12,6 @@ version = "0.0.1"
 
 # Stack that will be used by the builder
 [stack]
-id = "io.caicloud.stacks.bionic"
-run-image = "caicloud-run:bionic"
-build-image = "caicloud-build:bionic"
+id = "io.caicloud.stacks.Debian.buster"
+run-image = "caicloud-run:Debian.buster"
+build-image = "caicloud-build:Debian.buster"

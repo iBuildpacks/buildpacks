@@ -8,7 +8,7 @@ RUN zypper modifyrepo -da && \
   zypper addrepo -f http://mirrors.aliyun.com/packman/openSUSE_Leap_42.3/ aliyun-packman && \
   zypper --gpg-auto-import-keys refresh && \
   zypper install -y --type pattern devel_basis && \
-  zypper install -y git cmake glibc-locale binutils && \
+  zypper install -y vim git cmake glibc-locale binutils && \
   zypper clean
 
 # set timezone

@@ -6,7 +6,7 @@ RUN sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.li
 RUN apt-get update && apt-get upgrade -y && \
   apt-get install -y --no-install-recommends \
   # system utils
-  netbase gnupg dirmngr tree file locales \
+  jq tzdata vim netbase gnupg dirmngr tree file locales \
   # download tools
   ca-certificates wget curl \
   # uncompress tools
