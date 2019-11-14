@@ -6,13 +6,14 @@ set -eo pipefail
 
 PREFIX=caicloud
 ID_PREFIX=io.caicloud.stacks
-IMAGE=bionic
 
 docker-build() {
-  pushd $1
-  docker build --build-arg "stack_id=${ID_PREFIX}.${IMAGE}" -t ${PREFIX}-$1:bionic .
+  pushd $1/$2
+  docker build --build-arg "stack_id=${ID_PREFIX}.$1" -t ${PREFIX}-$2:$1 .
   popd
 }
 
-docker-build build
-docker-build run
+for dir in `find . -type d -d 1`; do
+  docker-build $(basename "${dir}") build
+  docker-build $(basename "${dir}") run
+done
