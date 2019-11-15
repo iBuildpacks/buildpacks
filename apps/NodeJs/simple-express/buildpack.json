@@ -1,0 +1,8 @@
+{
+  "name": "simple-express",
+  "language": {
+    "name": "NodeJs",
+    "version": "10.10.1"
+  },
+  "command": "npm start"
+}

@@ -2,6 +2,13 @@
 
 set -eo pipefail
 
+PROJECT_CONSTANT=buildpack.json
+
 if [[ ! -f package.json ]]; then
-  exit 1
+  exit 1;
+elif [[ -f ${PROJECT_CONSTANT} ]]; then
+  language=$(jq --raw-output ".language.name" ${PROJECT_CONSTANT} | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+  if [[ ${language} != "nodejs" ]]; then
+    exit 1;
+  fi
 fi

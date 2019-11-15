@@ -26,9 +26,24 @@ esac
 
 echo ${distroname}
 
+# NodeJs LTS version
 NODE_VERSION=v12.13.0
+NODE_LAUNCH_COMMAND=""
 
 echo "---> NodeJs buildpack"
+
+PROJECT_CONSTANT=buildpack.json
+
+if [[ -f ${PROJECT_CONSTANT} ]]; then
+  version=$(jq --raw-output ".language.name" ${PROJECT_CONSTANT} | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+  if [[ ${version} != "" ]]; then
+    NODE_VERSION=${version}
+  fi
+  command=$(jq --raw-output ".command" ${PROJECT_CONSTANT} | tr -d '"')
+  if [[ ${NODE_LAUNCH_COMMAND} != "" ]]; then
+    NODE_LAUNCH_COMMAND=${command}
+  fi
+fi
 
 wget https://tc.tosone.cn/node-${NODE_VERSION}-linux-x64.tar.xz
 
@@ -58,20 +73,28 @@ npm config set registry https://registry.npm.taobao.org
 if [[ -f package-lock.json ]]; then
   npm install --production
   node_modules_checksum=$(sha256sum package-lock.json | cut -d ' ' -f 1)
+  launch_command="npm start"
+  if [[ ${NODE_LAUNCH_COMMAND} != "" ]]; then
+    launch_command=${NODE_LAUNCH_COMMAND};
+  fi
   cat >> "${layers_dir}/launch.toml" <<EOL
 [[processes]]
-type = "web"
-command = "npm start"
+type = 'web'
+command = '${launch_command}'
 EOL
 elif [[ -f yarn.lock ]]; then
   npm install -g yarn
   yarn config set registry https://registry.npm.taobao.org
   yarn install --production
-  node_modules_checksum=$(sha256sum package-lock.json | cut -d ' ' -f 1)
+  node_modules_checksum=$(sha256sum yarn.lock | cut -d ' ' -f 1)
+  launch_command="yarn run start"
+  if [[ ${NODE_LAUNCH_COMMAND} != "" ]]; then
+    launch_command=${NODE_LAUNCH_COMMAND};
+  fi
   cat >> "${layers_dir}/launch.toml" <<EOL
 [[processes]]
-type = "web"
-command = "yarn start"
+type = 'web'
+command = '${launch_command}'
 EOL
 fi
 
