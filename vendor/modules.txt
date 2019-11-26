@@ -1,0 +1,14 @@
+# github.com/BurntSushi/toml v0.3.1
+github.com/BurntSushi/toml
+# github.com/iBuildpacks/libbuildpack v1.25.5
+github.com/iBuildpacks/libbuildpack/application
+github.com/iBuildpacks/libbuildpack/buildpack
+github.com/iBuildpacks/libbuildpack/buildplan
+github.com/iBuildpacks/libbuildpack/detect
+github.com/iBuildpacks/libbuildpack/internal
+github.com/iBuildpacks/libbuildpack/logger
+github.com/iBuildpacks/libbuildpack/platform
+github.com/iBuildpacks/libbuildpack/services
+github.com/iBuildpacks/libbuildpack/stack
+# github.com/onsi/gomega v1.7.1
+github.com/onsi/gomega/types

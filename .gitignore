@@ -12,3 +12,13 @@
 *.out
 
 node_modules/
+
+bin/build
+bin/detect
+
+.idea/
+
+buildpack-dind/pack/
+buildpack-dind/lifecycle/
+buildpack-dind/lifecycle-*
+buildpack-dind/out
