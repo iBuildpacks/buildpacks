@@ -13,10 +13,7 @@ docker-build() {
   popd
 }
 
-# for dir in `find . -type d -d 1`; do
-#   docker-build $(basename "${dir}") build
-#   docker-build $(basename "${dir}") run
-# done
-
-docker-build Debian.buster build
-docker-build Debian.buster run
+for dir in `find . -type d -d 1`; do
+  docker-build $(basename "${dir}") build
+  docker-build $(basename "${dir}") run
+done

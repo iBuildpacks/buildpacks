@@ -53,16 +53,16 @@ RUN rm -f /etc/localtime && ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localti
 # ENV DOCKER_TLS_CERTDIR=/certs
 # RUN mkdir /certs /certs/client && chmod 1777 /certs /certs/client
 
-# ARG cnb_uid=1000
-# ARG cnb_gid=1000
+ARG cnb_uid=1000
+ARG cnb_gid=1000
 
-# RUN groupadd cnb --gid ${cnb_gid} && \
-#   useradd --uid ${cnb_uid} --gid ${cnb_gid} -m -s /bin/bash cnb
+RUN groupadd cnb --gid ${cnb_gid} && \
+  useradd --uid ${cnb_uid} --gid ${cnb_gid} -m -s /bin/bash cnb
 
-# ENV CNB_USER_ID=${cnb_uid}
-# ENV CNB_GROUP_ID=${cnb_gid}
+ENV CNB_USER_ID=${cnb_uid}
+ENV CNB_GROUP_ID=${cnb_gid}
 
-# USER cnb
+USER cnb
 
-# ARG stack_id
-# LABEL io.buildpacks.stack.id=${stack_id}
+ARG stack_id
+LABEL io.buildpacks.stack.id=${stack_id}
