@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+layers_dir=$1
+
+# Detect Linux Distro
+distrofullname=$(grep PRETTY_NAME /etc/os-release | sed 's/PRETTY_NAME=//g' | tr -d '="' | cut -d " " -f 1)
+
+distroname=Ubuntu
+
+case ${distrofullname} in
+  CentOS)
+    distroname=CentOS
+    ;;
+  Ubuntu)
+    distroname=Ubuntu
+    ;;
+  openSUSE)
+    distroname=openSUSE
+    ;;
+  Debian)
+    distroname=Debian
+    ;;
+esac
+
+echo ${distroname}
+
+# GO LTS version
+COMPILER_VERSION=v1.13.5
+PROJECT_LAUNCH_COMMAND=""
+PROJECT_BUILD_COMMAND=""
+
+echo "---> Golang buildpack"
+
+PROJECT_CONSTANT=buildpack.json
+
+if [[ -f ${PROJECT_CONSTANT} ]]; then
+  version=$(jq --raw-output ".language.name" ${PROJECT_CONSTANT} | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+  if [[ ${version} != "" ]]; then
+    COMPILER_VERSION=${version}
+  fi
+  launch_command=$(jq --raw-output ".command.launch" ${PROJECT_CONSTANT} | tr -d '"')
+  if [[ ${PROJECT_LAUNCH_COMMAND} != "" ]]; then
+    PROJECT_LAUNCH_COMMAND=${launch_command}
+  fi
+  build_command=$(jq --raw-output ".command.build" ${PROJECT_CONSTANT} | tr -d '"')
+  if [[ ${PROJECT_LAUNCH_COMMAND} != "" ]]; then
+    PROJECT_LAUNCH_COMMAND=${build_command}
+  fi
+fi
+
+wget https://dl.google.com/go/go${COMPILER_VERSION}.linux-amd64.tar.gz
+
+echo "---> Extracting Golang Runtime"
+
+tar xf go${COMPILER_VERSION}.linux-amd64.tar.gz
+
+runtime_layer_dir="${layers_dir}/__runtime"
+mkdir -p "${runtime_layer_dir}"
+
+cp -r go/* ${runtime_layer_dir}
+export PATH=$PATH:${runtime_layer_dir}/bin
+
+cat > "${runtime_layer_dir}.toml" <<EOL
+launch = true
+metadata = "${NODE_VERSION}"
+EOL
+
+echo "---> Compiling Code"
+
+if [[ ${PROJECT_BUILD_COMMAND} != "" && ${PROJECT_LAUNCH_COMMAND} != "" ]]; then
+  bash -c "${PROJECT_BUILD_COMMAND}"
+else
+  go build -a -v .
+
+cat >> "${layers_dir}/launch.toml" <<EOL
+[[processes]]
+type = 'web'
+command = '${launch_command}'
+EOL

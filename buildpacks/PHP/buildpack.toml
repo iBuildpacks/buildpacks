@@ -1,0 +1,27 @@
+api = "0.2"
+
+[buildpack]
+id = "io.caicloud.golang"
+version = "0.0.1"
+name = "Golang buildpack runtime env"
+
+[[stacks]]
+id = "io.caicloud.stacks.Debian.buster"
+
+[[stacks]]
+id = "io.caicloud.stacks.Debian.jessie"
+
+[[stacks]]
+id = "io.caicloud.stacks.Debian.stretch"
+
+[[stacks]]
+id = "io.caicloud.stacks.CentOS.7.5.1804"
+
+[[stacks]]
+id = "io.caicloud.stacks.openSUSE.42.3"
+
+[[stacks]]
+id = "io.caicloud.stacks.Ubuntu.bionic"
+
+[[stacks]]
+id = "io.caicloud.stacks.Ubuntu.xenial"

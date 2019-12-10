@@ -10,7 +10,7 @@ distrofullname=$(grep PRETTY_NAME /etc/os-release | sed 's/PRETTY_NAME=//g' | tr
 distroname=Ubuntu
 
 case ${distrofullname} in
-  CentOS) 
+  CentOS)
     distroname=CentOS
     ;;
   Ubuntu)
