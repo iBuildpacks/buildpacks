@@ -1,3 +1,14 @@
 #!/usr/bin/env bash
 
 set -eo pipefail
+
+PROJECT_CONSTANT=buildpack.json
+
+if [[ ! -d vendor ]]; then
+  exit 1;
+elif [[ -f ${PROJECT_CONSTANT} ]]; then
+  language=$(jq --raw-output ".language.name" ${PROJECT_CONSTANT} | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+  if [[ ${language} != "java" || ${language} != "Java" ]]; then
+    exit 1;
+  fi
+fi

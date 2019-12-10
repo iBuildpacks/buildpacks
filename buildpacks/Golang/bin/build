@@ -72,10 +72,12 @@ echo "---> Compiling Code"
 if [[ ${PROJECT_BUILD_COMMAND} != "" && ${PROJECT_LAUNCH_COMMAND} != "" ]]; then
   bash -c "${PROJECT_BUILD_COMMAND}"
 else
-  go build -a -v .
+  go build -a -v -o app .
+  PROJECT_LAUNCH_COMMAND=./app
+fi
 
 cat >> "${layers_dir}/launch.toml" <<EOL
 [[processes]]
 type = 'web'
-command = '${launch_command}'
+command = '${PROJECT_LAUNCH_COMMAND}'
 EOL

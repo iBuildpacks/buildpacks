@@ -1,0 +1,27 @@
+# Buildpacks to include in builder
+[[buildpacks]]
+id = "io.caicloud.nodejs"
+version = "0.0.1"
+uri = "../buildpacks/NodeJs"
+
+[[buildpacks]]
+id = "io.caicloud.golang"
+version = "0.0.1"
+uri = "../buildpacks/Golang"
+
+# Order used for detection
+[[order]]
+
+[[order.group]]
+id = "io.caicloud.nodejs"
+version = "0.0.1"
+
+[[order.group]]
+id = "io.caicloud.golang"
+version = "0.0.1"
+
+# Stack that will be used by the builder
+[stack]
+id = "io.caicloud.stacks.Debian.stretch"
+run-image = "caicloud-run:Debian.stretch"
+build-image = "caicloud-build:Debian.stretch"
