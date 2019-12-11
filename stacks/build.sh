@@ -9,7 +9,7 @@ ID_PREFIX=io.caicloud.stacks
 
 docker-build() {
   pushd $1/$2
-  docker build --build-arg "stack_id=${ID_PREFIX}.$1" -t ${PREFIX}-$2:$1 . >/dev/null 2>&1
+  docker build --build-arg "stack_id=${ID_PREFIX}.$1" -t ${PREFIX}-$2:$1 .
   popd
 }
 

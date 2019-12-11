@@ -17,11 +17,9 @@ RUN apt-get update && apt-get upgrade -y && \
   build-essential cmake \
   # gyp need python support
   python3 python3-pip python3-setuptools python3-dev \
-  # pack need docker support
-  docker.io && \
+  # scm tools
+  git && \
   rm -rf /var/lib/apt/lists/*
-
-RUN /etc/init.d/docker start
 
 # set locales
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
@@ -29,29 +27,6 @@ RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
 
 # set timezone
 RUN rm -f /etc/localtime && ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-
-# RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
-
-# ENV DOCKER_CHANNEL stable
-# ENV DOCKER_VERSION 19.03.5
-
-# RUN if ! wget -O docker.tgz "https://download.docker.com/linux/static/${DOCKER_CHANNEL}/x86_64/docker-${DOCKER_VERSION}.tgz"; then \
-#   echo >&2 "error: failed to download 'docker-${DOCKER_VERSION}' from '${DOCKER_CHANNEL}' for 'x86_64'"; \
-#   exit 1; \
-#   fi; \
-#   tar --extract \
-#   --file docker.tgz \
-#   --strip-components 1 \
-#   --directory /usr/local/bin/; \
-#   rm docker.tgz; \
-#   dockerd --version; \
-#   docker --version
-
-# COPY modprobe.sh /usr/local/bin/modprobe
-# COPY docker-entrypoint.sh /usr/local/bin/
-
-# ENV DOCKER_TLS_CERTDIR=/certs
-# RUN mkdir /certs /certs/client && chmod 1777 /certs /certs/client
 
 ARG cnb_uid=1000
 ARG cnb_gid=1000

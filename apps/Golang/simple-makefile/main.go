@@ -26,6 +26,7 @@ func main() {
 		}
 	}()
 
+	fmt.Println("Server Running at localhost:3000")
 	http.HandleFunc("/", HelloServer)
 	if err = http.ListenAndServe(":3000", nil); err != nil {
 		log.Fatal(err)

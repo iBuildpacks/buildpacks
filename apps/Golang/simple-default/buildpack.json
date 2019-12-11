@@ -1,0 +1,11 @@
+{
+  "package": "github.com/tosone/simple",
+  "language": {
+    "name": "go",
+    "version": "1.13.5"
+  },
+  "command": {
+    "launch": "",
+    "build": ""
+  }
+}

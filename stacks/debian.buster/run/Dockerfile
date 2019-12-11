@@ -16,7 +16,9 @@ RUN apt-get update && apt-get upgrade -y && \
   # sometime need gcc libc-dev support
   build-essential cmake \
   # gyp need python support
-  python3 python3-pip python3-setuptools python3-dev && \
+  python3 python3-pip python3-setuptools python3-dev \
+  # scm tools
+  git && \
   rm -rf /var/lib/apt/lists/*
 
 # set locales

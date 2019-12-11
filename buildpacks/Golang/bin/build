@@ -5,48 +5,50 @@ set -eo pipefail
 layers_dir=$1
 
 # Detect Linux Distro
-distrofullname=$(grep PRETTY_NAME /etc/os-release | sed 's/PRETTY_NAME=//g' | tr -d '="' | cut -d " " -f 1)
+distroname=$(grep PRETTY_NAME /etc/os-release | sed 's/PRETTY_NAME=//g' | tr -d '="' | cut -d " " -f 1)
 
-distroname=Ubuntu
-
-case ${distrofullname} in
+case ${distroname} in
   CentOS)
-    distroname=CentOS
     ;;
   Ubuntu)
-    distroname=Ubuntu
     ;;
   openSUSE)
-    distroname=openSUSE
     ;;
   Debian)
-    distroname=Debian
     ;;
 esac
 
-echo ${distroname}
-
 # GO LTS version
-COMPILER_VERSION=v1.13.5
+COMPILER_VERSION=1.13.5
 PROJECT_LAUNCH_COMMAND=""
 PROJECT_BUILD_COMMAND=""
+PROJECT_PACKAGE_NAME="example.com/x/sample"
+PROJECT_OUTPUT=""
 
 echo "---> Golang buildpack"
 
 PROJECT_CONSTANT=buildpack.json
 
 if [[ -f ${PROJECT_CONSTANT} ]]; then
-  version=$(jq --raw-output ".language.name" ${PROJECT_CONSTANT} | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+  version=$(jq --raw-output ".language.version" ${PROJECT_CONSTANT} | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
   if [[ ${version} != "" ]]; then
     COMPILER_VERSION=${version}
   fi
   launch_command=$(jq --raw-output ".command.launch" ${PROJECT_CONSTANT} | tr -d '"')
-  if [[ ${PROJECT_LAUNCH_COMMAND} != "" ]]; then
+  if [[ ${launch_command} != "" ]]; then
     PROJECT_LAUNCH_COMMAND=${launch_command}
   fi
   build_command=$(jq --raw-output ".command.build" ${PROJECT_CONSTANT} | tr -d '"')
-  if [[ ${PROJECT_LAUNCH_COMMAND} != "" ]]; then
-    PROJECT_LAUNCH_COMMAND=${build_command}
+  if [[ ${build_command} != "" ]]; then
+    PROJECT_BUILD_COMMAND=${build_command}
+  fi
+  package_name=$(jq --raw-output ".package" ${PROJECT_CONSTANT} | tr -d '"')
+  if [[ ${package_name} != "" && ${package_name} != "null" ]]; then
+    PROJECT_PACKAGE_NAME=${package_name}
+  fi
+  project_output_file=$(jq --raw-output ".output" ${PROJECT_CONSTANT} | tr -d '"')
+  if [[ ${project_output_file} != "" && ${project_output_file} != "null" ]]; then
+    PROJECT_OUTPUT=${project_output_file}
   fi
 fi
 
@@ -56,28 +58,62 @@ echo "---> Extracting Golang Runtime"
 
 tar xf go${COMPILER_VERSION}.linux-amd64.tar.gz
 
-runtime_layer_dir="${layers_dir}/__runtime"
-mkdir -p "${runtime_layer_dir}"
+runtime_layer_dir=${layers_dir}/__runtime
+mkdir -p ${runtime_layer_dir}
 
 cp -r go/* ${runtime_layer_dir}
 export PATH=$PATH:${runtime_layer_dir}/bin
 
-cat > "${runtime_layer_dir}.toml" <<EOL
-launch = true
-metadata = "${NODE_VERSION}"
-EOL
+rm -rf go go${COMPILER_VERSION}.linux-amd64.tar.gz
+
+gopath_dir=${layers_dir}/__go
+project_dir=${gopath_dir}/src/${PROJECT_PACKAGE_NAME}
+
+mkdir -p ${project_dir}
+
+for file in `ls | grep -v __go`; do
+  echo "cp -r ${file} ${project_dir}"
+  cp -r ${file} ${project_dir}
+done
+
+export GO111MODULE=off
+export GOPROXY=https://goproxy.cn,direct
+export GOPATH=${gopath_dir}
+
+# DO NOT CACHE RUNTIME LAYER FOR GO
+# cat > "${runtime_layer_dir}.toml" <<EOL
+# launch = true
+# metadata = "${NODE_VERSION}"
+# EOL
 
 echo "---> Compiling Code"
 
 if [[ ${PROJECT_BUILD_COMMAND} != "" && ${PROJECT_LAUNCH_COMMAND} != "" ]]; then
+  pushd ${project_dir}
   bash -c "${PROJECT_BUILD_COMMAND}"
+  cp ${PROJECT_OUTPUT} ${layers_dir}
+  popd
+  pushd ${layers_dir}
+  app_checksum=$(sha256sum ./${PROJECT_OUTPUT} | cut -d ' ' -f 1)
+  cat > "${PROJECT_OUTPUT}.toml" <<EOL
+cache = true
+launch = true
+metadata = "${app_checksum}"
+EOL
+  popd
 else
-  go build -a -v -o app .
-  PROJECT_LAUNCH_COMMAND=./app
+  go build -a -v -o __app ${PROJECT_PACKAGE_NAME}
+  PROJECT_LAUNCH_COMMAND=./__app
+  app_checksum=$(sha256sum __app | cut -d ' ' -f 1)
+  cat > "__app.toml" <<EOL
+cache = true
+launch = true
+metadata = "${app_checksum}"
+EOL
 fi
 
 cat >> "${layers_dir}/launch.toml" <<EOL
 [[processes]]
 type = 'web'
-command = '${PROJECT_LAUNCH_COMMAND}'
+command = '${layers_dir}/${PROJECT_OUTPUT}'
 EOL

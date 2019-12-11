@@ -1,3 +1,78 @@
 #!/usr/bin/env bash
 
 set -eo pipefail
+
+layers_dir=$1
+
+echo "---> Golang buildpack"
+
+runtime_layer_dir=${layers_dir}/__runtime
+
+mkdir -p ${runtime_layer_dir}
+
+jdk_version=8.0.232
+jdk_url=https://cdn.azul.com/zulu/bin/zulu8.42.0.23-ca-jdk8.0.232-linux_x64.tar.gz
+
+wget ${jdk_url} && \
+tar xf zulu11.35.15-ca-jdk${jdk_version}-linux_x64.tar.gz && \
+mv zulu11.35.15-ca-jdk${jdk_version}-linux_x64 __runtime
+
+cat > "${runtime_layer_dir}.toml" << EOF
+launch = true
+build = true
+cache = true
+[metadata]
+version = "${jdk_version}"
+url = "${jdk_url}"
+EOF
+
+export JAVA_HOME=${runtime_layer_dir}
+export PATH=${jdk_layer_dir}/bin:$PATH
+export LD_LIBRARY_PATH=${jdk_layer_dir}/jre/lib/amd64/server
+
+maven_version=3.6.3
+maven_url=http://mirrors.tuna.tsinghua.edu.cn/apache/maven/maven-3/${maven_version}/binaries/apache-maven-${maven_version}-bin.tar.gz
+
+m2_layer_dir="${layers_dir}/maven_m2"
+if [[ ! -d ${m2_layer_dir} ]]; then
+  mkdir -p ${m2_layer_dir}
+  echo "cache = true" > ${m2_layer_dir}.toml
+fi
+
+ln -s ${m2_layer_dir} $HOME/.m2
+
+MAVEN_OPTS="${MAVEN_OPTS:-"-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"}"
+
+if [[ -x mvnw ]]; then
+  echo "---> Running Maven Wrapper"
+  ./mvnw clean install -B -DskipTests
+else
+  maven_layer_dir=${layers_dir}/__maven
+  echo "---> Installing Maven"
+  rm -rf "${maven_layer_dir}"
+  mkdir -p "${maven_layer_dir}"
+  wget -q -O - "${maven_url}" | tar pxz -C "${maven_layer_dir}" --strip-components=1
+  cat > "${maven_layer_dir}.toml" << EOF
+launch = true
+build = true
+cache = true
+[metadata]
+version = "${maven_version}"
+url = "${maven_url}"
+EOF
+  export PATH=${PATH}:${maven_layer_dir}/bin
+
+  echo "---> Running Maven"
+  mvn clean install -B -DskipTests
+fi
+
+# 6. SET DEFAULT START COMMAND
+target_dir="target"
+for jar_file in $(find "$target_dir" -maxdepth 1 -name "*.jar" -type f); do
+  cat >> "${layers_dir}/launch.toml" <<EOL
+[[processes]]
+type = "web"
+command = "java -jar ${jar_file}"
+EOL
+  break;
+done

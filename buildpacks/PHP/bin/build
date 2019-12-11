@@ -1,3 +1,26 @@
 #!/usr/bin/env bash
 
 set -eo pipefail
+
+layers_dir=$1
+
+# Detect Linux Distro
+distroname=$(grep PRETTY_NAME /etc/os-release | sed 's/PRETTY_NAME=//g' | tr -d '="' | cut -d " " -f 1)
+
+case ${distroname} in
+  CentOS)
+    yum install -y php
+    ;;
+  Ubuntu)
+    distroname=Ubuntu
+    apt-get install -y php
+    ;;
+  openSUSE)
+    distroname=openSUSE
+    ;;
+  Debian)
+    distroname=Debian
+    ;;
+esac
+
+composer config -g repo.packagist composer https://packagist.phpcomposer.com

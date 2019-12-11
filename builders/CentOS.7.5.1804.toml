@@ -11,11 +11,11 @@ uri = "../buildpacks/Golang"
 
 # Order used for detection
 [[order]]
-
 [[order.group]]
 id = "io.caicloud.nodejs"
 version = "0.0.1"
 
+[[order]]
 [[order.group]]
 id = "io.caicloud.golang"
 version = "0.0.1"
