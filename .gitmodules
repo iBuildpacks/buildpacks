@@ -1,0 +1,6 @@
+[submodule "buildpack-build/pack"]
+	path = buildpack-build/pack
+	url = git@github.com:buildpacks/pack.git
+[submodule "buildpack-build/lifecycle"]
+	path = buildpack-build/lifecycle
+	url = git@github.com:buildpacks/lifecycle.git

@@ -1,0 +1,10 @@
+{
+  "language": {
+    "name": "php"
+  },
+  "docroot": "public",
+  "command": {
+    "launch": "",
+    "build": ""
+  }
+}

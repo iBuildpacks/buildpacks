@@ -39,8 +39,8 @@ if [[ -f ${PROJECT_CONSTANT} ]]; then
   if [[ ${version} != "" ]]; then
     NODE_VERSION=${version}
   fi
-  command=$(jq --raw-output ".command" ${PROJECT_CONSTANT} | tr -d '"')
-  if [[ ${NODE_LAUNCH_COMMAND} != "" ]]; then
+  command=$(jq --raw-output ".command.launch" ${PROJECT_CONSTANT} | tr -d '"')
+  if [[ ${command} != "" && ${command} != "null" ]]; then
     NODE_LAUNCH_COMMAND=${command}
   fi
 fi
@@ -49,12 +49,12 @@ wget https://tc.tosone.cn/node-v${NODE_VERSION}-linux-x64.tar.xz
 
 echo "---> Extracting NodeJs Runtime"
 
-tar xf node-${NODE_VERSION}-linux-x64.tar.xz
+tar xf node-v${NODE_VERSION}-linux-x64.tar.xz
 
 runtime_layer_dir="${layers_dir}/node"
 mkdir -p "${runtime_layer_dir}"
 
-cp -r node-${NODE_VERSION}-linux-x64/* ${runtime_layer_dir}
+cp -r node-v${NODE_VERSION}-linux-x64/* ${runtime_layer_dir}
 export PATH=$PATH:${runtime_layer_dir}/bin
 
 rm -rf node-${NODE_VERSION}-linux-x64.tar.xz node-${NODE_VERSION}-linux-x64

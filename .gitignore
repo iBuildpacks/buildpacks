@@ -11,14 +11,9 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+.idea/
+.vscode/
 node_modules/
 
 bin/build
 bin/detect
-
-.idea/
-
-buildpack-dind/pack/
-buildpack-dind/lifecycle/
-buildpack-dind/lifecycle-*
-buildpack-dind/out

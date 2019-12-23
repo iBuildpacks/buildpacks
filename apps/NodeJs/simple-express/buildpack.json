@@ -2,7 +2,10 @@
   "name": "simple-express",
   "language": {
     "name": "NodeJs",
-    "version": "10.10.1"
+    "version": "12.13.0"
   },
-  "command": "npm start"
+  "command": {
+    "launch": "npm start",
+    "build": ""
+  }
 }

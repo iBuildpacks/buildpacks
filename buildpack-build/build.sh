@@ -4,13 +4,13 @@ set -eo pipefail
 
 PACKAGE_PREFIX=/go/src/github.com/iBuildpacks
 
-BUILDENV=golang:alpine-dev
+BUILDENV=golang:alpine
 
 if [ -d out ]; then
   rm -rf out
 fi
 
-docker build -t ${BUILDENV} .
+# docker build -t ${BUILDENV} .
 
 docker run --rm -it -v $PWD:${PACKAGE_PREFIX} ${BUILDENV} \
   bash -c "cd /go/src/github.com/iBuildpacks/pack && make build && \

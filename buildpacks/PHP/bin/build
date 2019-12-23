@@ -9,11 +9,9 @@ distroname=$(grep PRETTY_NAME /etc/os-release | sed 's/PRETTY_NAME=//g' | tr -d 
 
 case ${distroname} in
   CentOS)
-    yum install -y php
     ;;
   Ubuntu)
     distroname=Ubuntu
-    apt-get install -y php
     ;;
   openSUSE)
     distroname=openSUSE
@@ -23,4 +21,48 @@ case ${distroname} in
     ;;
 esac
 
-composer config -g repo.packagist composer https://packagist.phpcomposer.com
+echo "---> PHP buildpack"
+
+PROJECT_CONSTANT=buildpack.json
+PROJECT_DOC_ROOT=""
+
+if [[ -f ${PROJECT_CONSTANT} ]]; then
+  doc_root=$(jq --raw-output ".docroot" ${PROJECT_CONSTANT} | tr -d '"')
+  if [[ ${doc_root} != "" ]]; then
+    PROJECT_DOC_ROOT=${doc_root}
+  fi
+fi
+
+project_dir=${layers_dir}/__project && \
+mkdir -p ${project_dir}
+
+for file in `ls | grep -v __project`; do
+  echo "cp -r ${file} ${project_dir}"
+  cp -r ${file} ${project_dir}
+done
+
+pushd ${layers_dir}
+  curl -sS https://getcomposer.org/installer | php
+  mv composer.phar composer
+  ./composer config -g repo.packagist composer https://packagist.phpcomposer.com
+popd
+
+pushd ${project_dir}
+  ${layers_dir}/composer install --no-dev
+popd
+
+composer_checksum=$(sha256sum composer.lock | cut -d ' ' -f 1)
+
+pushd ${layers_dir}
+  cat > "${project_dir}.toml" <<EOL
+cache = true
+launch = true
+metadata = "${composer_checksum}"
+EOL
+popd
+
+cat >> "${layers_dir}/launch.toml" <<EOL
+[[processes]]
+type = "web"
+command = "php -S 127.0.0.1:3000 -t ${layers_dir}/__project/${PROJECT_DOC_ROOT}"
+EOL

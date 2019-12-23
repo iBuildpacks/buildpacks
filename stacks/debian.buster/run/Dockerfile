@@ -18,8 +18,15 @@ RUN apt-get update && apt-get upgrade -y && \
   # gyp need python support
   python3 python3-pip python3-setuptools python3-dev \
   # scm tools
-  git && \
+  git \
+  # languages
+  php && \
   rm -rf /var/lib/apt/lists/*
+
+# ADD https://getcomposer.org/download/1.9.1/composer.phar /usr/bin/composer
+
+# RUN chmod +x /usr/bin/composer && \
+#   composer config -g repo.packagist composer https://packagist.phpcomposer.com
 
 # set locales
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
