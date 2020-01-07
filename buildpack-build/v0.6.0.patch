@@ -1,0 +1,13 @@
+diff --git a/create_builder.go b/create_builder.go
+index 41b2e34..85f61f3 100644
+--- a/create_builder.go
++++ b/create_builder.go
+@@ -161,7 +161,7 @@ func (c *Client) fetchLifecycle(ctx context.Context, config pubbldr.LifecycleCon
+ }
+ 
+ func uriFromLifecycleVersion(version semver.Version) string {
+-	return fmt.Sprintf("https://github.com/buildpacks/lifecycle/releases/download/v%s/lifecycle-v%s+linux.x86-64.tgz", version.String(), version.String())
++	return fmt.Sprintf("/data/lifecycle-v%s+linux.x86-64.tgz", version.String(), version.String())
+ }
+ 
+ func validateBuilderConfig(conf pubbldr.Config) error {

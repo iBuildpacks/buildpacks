@@ -4,14 +4,14 @@ set -eo pipefail
 
 layers_dir=$1
 
-echo "---> Golang buildpack"
+echo "---> Java buildpack"
 
 runtime_layer_dir=${layers_dir}/__runtime
 
 mkdir -p ${runtime_layer_dir}
 
 jdk_version=8.0.232
-jdk_url=https://cdn.azul.com/zulu/bin/zulu8.42.0.23-ca-jdk8.0.232-linux_x64.tar.gz
+jdk_url=https://cdn.azul.com/zulu/bin/zulu8.42.0.23-ca-jdk${jdk_version}-linux_x64.tar.gz
 
 wget ${jdk_url} && \
 tar xf zulu11.35.15-ca-jdk${jdk_version}-linux_x64.tar.gz && \

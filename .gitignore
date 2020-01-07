@@ -15,5 +15,4 @@
 .vscode/
 node_modules/
 
-bin/build
-bin/detect
+buildpack-build/out/

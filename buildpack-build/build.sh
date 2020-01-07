@@ -2,20 +2,25 @@
 
 set -eo pipefail
 
-PACKAGE_PREFIX=/go/src/github.com/iBuildpacks
+PACKAGE_PREFIX=/go/src/github.com/buildpacks
 
-BUILDENV=golang:alpine
+BUILDENV=golang:alpine-dev
+
+LIFECYCLE_VERSION=0.5.0
+PACK_VERSION=v0.6.0
 
 if [ -d out ]; then
   rm -rf out
 fi
 
-# docker build -t ${BUILDENV} .
+docker build -t ${BUILDENV} .
 
 docker run --rm -it -v $PWD:${PACKAGE_PREFIX} ${BUILDENV} \
-  bash -c "cd /go/src/github.com/iBuildpacks/pack && make build && \
-           ls -alh ./out && cd /go/src/github.com/iBuildpacks/lifecycle && \
-           make build package && ls -alh ./out"
+  bash -c "cd pack && git reset HEAD --hard && git clean -df && git checkout ${PACK_VERSION} && \
+  git apply ../${PACK_VERSION}.patch && \
+  env GO111MODULE=off make build && cd .. && \
+  cd lifecycle && git reset HEAD --hard && git clean -df && git checkout v${LIFECYCLE_VERSION} && \
+  env LIFECYCLE_VERSION=${LIFECYCLE_VERSION} make build package"
 
 mkdir out
 

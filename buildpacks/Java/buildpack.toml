@@ -1,9 +1,9 @@
 api = "0.2"
 
 [buildpack]
-id = "io.caicloud.golang"
+id = "io.caicloud.java"
 version = "0.0.1"
-name = "Golang buildpack runtime env"
+name = "Java buildpack runtime env"
 
 [[stacks]]
 id = "io.caicloud.stacks.Debian.buster"

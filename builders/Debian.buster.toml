@@ -14,6 +14,11 @@ id = "io.caicloud.php"
 version = "0.0.1"
 uri = "../buildpacks/PHP"
 
+[[buildpacks]]
+id = "io.caicloud.java"
+version = "0.0.1"
+uri = "../buildpacks/Java"
+
 # Order used for detection
 [[order]]
 [[order.group]]
@@ -28,6 +33,11 @@ version = "0.0.1"
 [[order]]
 [[order.group]]
 id = "io.caicloud.php"
+version = "0.0.1"
+
+[[order]]
+[[order.group]]
+id = "io.caicloud.java"
 version = "0.0.1"
 
 # Stack that will be used by the builder
